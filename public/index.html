@@ -336,6 +336,53 @@ input[type="file"] { display: none; }
   .color-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* Live preview mock */
+.live-preview {
+  width: 100%; height: 290px; border-radius: var(--radius);
+  overflow: hidden; border: 1px solid var(--border);
+  margin-bottom: 4px; position: relative;
+}
+.live-preview-label {
+  position: absolute; bottom: 8px; right: 10px;
+  font-size: 10px; color: rgba(255,255,255,0.25); pointer-events: none;
+  font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+}
+
+/* Photo guide */
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.photo-card {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px; background: var(--surface2); display: flex;
+  flex-direction: column; gap: 8px;
+}
+.photo-card-icon { font-size: 22px; }
+.photo-card-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.photo-card-style { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+.photo-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.photo-tag {
+  background: var(--accent-dim); color: var(--accent);
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 10px; font-weight: 600;
+}
+.photo-unsplash {
+  font-size: 11px; color: var(--text-dim); margin-top: 2px;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 3px;
+}
+.photo-unsplash:hover { color: var(--text-muted); }
+.photo-sample-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 11px; font-family: inherit;
+  padding: 5px 10px; border-radius: var(--radius-xs); cursor: pointer;
+  transition: all 0.15s; text-align: left; margin-top: auto;
+}
+.photo-sample-btn:hover { border-color: var(--accent); color: var(--accent); }
+.photo-sample-img {
+  width: 100%; border-radius: 6px; display: block;
+  margin-top: 6px; object-fit: cover;
+}
+
+@media (max-width: 600px) { .photo-grid { grid-template-columns: 1fr; } }
+
 /* Copied toast */
 .toast {
   position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px);
@@ -536,6 +583,13 @@ input[type="file"] { display: none; }
       <div class="card-subtitle">Pick a base palette, then customize individual colors.</div>
 
       <div class="field">
+        <label>Live Preview</label>
+        <div class="live-preview" id="livePreview4">
+          <div class="live-preview-label">Preview</div>
+        </div>
+      </div>
+
+      <div class="field">
         <label>Base Palette</label>
         <div class="palette-grid" id="paletteGrid">
           <!-- Injected by JS -->
@@ -583,6 +637,13 @@ input[type="file"] { display: none; }
     <div class="card">
       <div class="card-title">Typography & Icons</div>
       <div class="card-subtitle">Choose a font pairing that doesn't look like every other AI app.</div>
+
+      <div class="field">
+        <label>Live Preview</label>
+        <div class="live-preview" id="livePreview5">
+          <div class="live-preview-label">Preview</div>
+        </div>
+      </div>
 
       <div class="field">
         <label>Font Pairing</label>
@@ -640,6 +701,14 @@ input[type="file"] { display: none; }
 
     <div class="ds-preview" id="dsPreview">
       <!-- Injected by buildPreview() -->
+    </div>
+
+    <!-- Photography Guide -->
+    <div class="preview-section" id="photoGuideSection" style="margin-top:0">
+      <div class="preview-section-header">📷 Photography & Image Guide</div>
+      <div class="preview-section-body" id="photoGuideBody">
+        <p style="color:var(--text-dim); font-size:13px">Loading recommendations…</p>
+      </div>
     </div>
 
     <!-- AI UI Preview -->
@@ -900,18 +969,21 @@ function selectPalette(id, el) {
   const palette = PALETTES.find(p => p.id === id);
   state.colors = { ...palette.colors };
   renderColorCustomizer();
+  updateLivePreview();
 }
 
 function updateColor(key, val) {
   state.colors[key] = val;
   document.getElementById('thumb-' + key).style.background = val;
   document.getElementById('hex-' + key).value = val;
+  updateLivePreview();
 }
 
 function updateColorHex(key, val) {
   if (/^#[0-9a-fA-F]{6}$/.test(val)) {
     state.colors[key] = val;
     document.getElementById('thumb-' + key).style.background = val;
+    updateLivePreview();
   }
 }
 
@@ -919,6 +991,7 @@ function selectFont(id, el) {
   document.querySelectorAll('.font-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   state.fontId = id;
+  updateLivePreview();
 }
 
 function selectIcon(id, el) {
@@ -931,6 +1004,7 @@ function selectRadius(el) {
   document.querySelectorAll('.radius-opt').forEach(r => r.classList.remove('selected'));
   el.classList.add('selected');
   state.radius = el.dataset.radius;
+  updateLivePreview();
 }
 
 function handleImageUpload(input, areaId, imgKey) {
@@ -1036,6 +1110,7 @@ function goToStep(n) {
     if (stepN < n) s.classList.add('done');
     if (stepN === n) s.classList.add('active');
   });
+  if (n === 4 || n === 5) setTimeout(updateLivePreview, 50);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1145,6 +1220,7 @@ function buildPreview() {
   document.getElementById('exportContent').textContent = generatedPrompt;
 
   goToStep(6);
+  setTimeout(buildPhotoGuide, 50);
 }
 
 function generatePrompt(font, icon, radii, c) {
@@ -1157,6 +1233,11 @@ function generatePrompt(font, icon, radii, c) {
     react: 'React', nextjs: 'Next.js', vue: 'Vue 3', nuxt: 'Nuxt',
     svelte: 'SvelteKit', html: 'HTML + Tailwind CSS', other: 'your preferred stack'
   };
+
+  const photoStyles = getPhotoStyles();
+  const photoSection = photoStyles.map(s =>
+    `- **${s.title}**: ${s.style}\n  Keywords: ${s.tags.join(', ')}\n  Unsplash: https://unsplash.com/s/photos/${encodeURIComponent(s.query)}`
+  ).join('\n');
 
   return `# Design System — ${state.appName}
 
@@ -1250,6 +1331,12 @@ ${state.wireframeImg ? '- Wireframe provided (see attached image)' : ''}
 
 ---
 
+## 📷 Photography & Image Direction
+
+${photoSection}
+
+---
+
 ## ⚠️ Design Rules — Enforce Strictly
 
 1. ❌ NO generic blue-purple AI gradients
@@ -1298,6 +1385,177 @@ function downloadMd() {
   a.href = URL.createObjectURL(blob);
   a.download = `${(state.appName || 'design-system').toLowerCase().replace(/\s+/g,'-')}-design-system.md`;
   a.click();
+}
+
+// ============================================================
+// LIVE PREVIEW
+// ============================================================
+
+function updateLivePreview() {
+  ['livePreview4', 'livePreview5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = renderMockUI() + '<div class="live-preview-label">Live Preview</div>';
+  });
+}
+
+function renderMockUI() {
+  const c = state.colors;
+  const font = FONT_PAIRS.find(f => f.id === state.fontId) || FONT_PAIRS[0];
+  const radii = RADIUS_MAP[state.radius] || RADIUS_MAP.medium;
+  const name = state.appName || 'AppName';
+  const desc = state.appDesc || 'Build something beautiful';
+  const vibeStr = state.vibes.slice(0,3).join(' · ') || 'modern · minimal · powerful';
+
+  const card = (title, i) => `
+    <div style="background:${c.surface};border:1px solid ${c.border};border-radius:${radii.card};padding:12px;overflow:hidden">
+      <div style="width:22px;height:22px;background:${c.accent};border-radius:5px;margin-bottom:7px;opacity:${0.95 - i*0.2}"></div>
+      <div style="font-size:11px;font-weight:600;color:${c.textPrimary};margin-bottom:3px">${title}</div>
+      <div style="font-size:10px;color:${c.textSecondary};line-height:1.45">Short description of this feature.</div>
+    </div>`;
+
+  return `
+  <div style="background:${c.bg};height:100%;display:flex;flex-direction:column;font-family:'${font.body}',sans-serif;overflow:hidden">
+    <div style="background:${c.surface};border-bottom:1px solid ${c.border};padding:10px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <span style="font-family:'${font.heading}',serif;font-size:15px;font-weight:700;color:${c.textPrimary}">${name}</span>
+      <div style="display:flex;gap:14px;align-items:center">
+        <span style="font-size:11px;color:${c.textSecondary}">Features</span>
+        <span style="font-size:11px;color:${c.textSecondary}">Pricing</span>
+        <span style="font-size:11px;background:${c.accent};color:${c.bg};padding:4px 12px;border-radius:${radii.btn};font-weight:600">Sign up</span>
+      </div>
+    </div>
+    <div style="padding:28px 22px 16px;text-align:center;flex-shrink:0">
+      <div style="font-family:'${font.heading}',serif;font-size:26px;font-weight:700;color:${c.textPrimary};line-height:1.2;margin-bottom:8px">${desc}</div>
+      <div style="font-size:12px;color:${c.textSecondary};margin-bottom:16px;letter-spacing:0.3px">${vibeStr}</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <span style="background:${c.accent};color:${c.bg};padding:7px 18px;border-radius:${radii.btn};font-size:12px;font-weight:600">Get started</span>
+        <span style="border:1px solid ${c.border};color:${c.textPrimary};padding:7px 16px;border-radius:${radii.btn};font-size:12px">Learn more</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 16px;flex:1;min-height:0">
+      ${['Analytics', 'Automation', 'Insights'].map((t, i) => card(t, i)).join('')}
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// PHOTOGRAPHY GUIDE
+// ============================================================
+
+const PHOTO_PROFILES = [
+  {
+    triggers: ['dark', 'minimal', 'tech', 'futuristic', 'bold', 'cyber', 'neon'],
+    styles: [
+      { icon: '🌑', title: 'Dark Product Photography', style: 'High-contrast product shots on dark backgrounds. Dramatic lighting, deep shadows.', tags: ['dark background', 'dramatic lighting', 'product', 'minimal'], query: 'dark minimal product photography' },
+      { icon: '⚡', title: 'Tech & Interface', style: 'Close-ups of screens, code, hardware. Blue/purple accent lighting on dark environments.', tags: ['technology', 'screen', 'code', 'blue light'], query: 'technology dark aesthetic photography' },
+      { icon: '🌃', title: 'Urban Night', style: 'City lights at night, bokeh, neon reflections. Abstract and atmospheric.', tags: ['city night', 'neon', 'bokeh', 'urban'], query: 'urban night lights bokeh' },
+    ]
+  },
+  {
+    triggers: ['warm', 'earth', 'natural', 'organic', 'cozy', 'soft'],
+    styles: [
+      { icon: '🌿', title: 'Warm Natural Lifestyle', style: 'Golden hour light, natural textures — wood, stone, plants. Warm tones, organic compositions.', tags: ['golden hour', 'natural', 'warm tones', 'lifestyle'], query: 'warm natural lifestyle photography golden hour' },
+      { icon: '☕', title: 'Cozy Interiors', style: 'Soft daylight, linen textures, coffee + books aesthetic. Inviting and human-centered.', tags: ['cozy', 'interior', 'soft light', 'minimal'], query: 'cozy minimal interior lifestyle' },
+      { icon: '🌾', title: 'Earthy Textures', style: 'Close-up textures of sand, wood grain, stone, leaves. Abstract and grounding.', tags: ['texture', 'earth', 'organic', 'macro'], query: 'organic earth texture macro photography' },
+    ]
+  },
+  {
+    triggers: ['light', 'clean', 'white', 'airy', 'minimal', 'simple'],
+    styles: [
+      { icon: '☁️', title: 'Light & Airy', style: 'Overexposed whites, soft shadows, neutral backgrounds. Scandinavian-minimal aesthetic.', tags: ['white', 'minimal', 'airy', 'clean'], query: 'light airy minimal photography white' },
+      { icon: '🪴', title: 'Studio Product', style: 'Clean white studio shots, perfect lighting, no clutter. Let the product speak.', tags: ['studio', 'product', 'white background', 'clean'], query: 'clean studio product photography white' },
+      { icon: '📐', title: 'Geometric Abstracts', style: 'Architectural angles, shadows and light, perfect lines. Cool and precise.', tags: ['architecture', 'geometric', 'shadow', 'lines'], query: 'geometric architecture minimal light shadow' },
+    ]
+  },
+  {
+    triggers: ['vibrant', 'colorful', 'bold', 'fun', 'playful', 'young', 'energetic'],
+    styles: [
+      { icon: '🎨', title: 'Bold Color Pop', style: 'Strong color backgrounds, saturated palettes, graphic compositions. Energetic and eye-catching.', tags: ['color', 'bold', 'saturated', 'graphic'], query: 'bold colorful graphic photography' },
+      { icon: '🎭', title: 'Lifestyle & People', style: 'Candid human moments, diverse faces, genuine emotion. Warm, inclusive, real.', tags: ['people', 'lifestyle', 'candid', 'emotion'], query: 'colorful lifestyle people photography' },
+      { icon: '✨', title: 'Illustrated Visuals', style: 'Blend of photography and illustration/vector graphics. Modern, digital-native aesthetic.', tags: ['illustration', 'mixed media', 'graphic', 'digital'], query: 'illustration photography blend digital art' },
+    ]
+  },
+];
+
+const DEFAULT_PHOTO_STYLES = [
+  { icon: '🖼', title: 'Clean Product Photography', style: 'Professional, well-lit product shots. Neutral backgrounds, sharp details.', tags: ['product', 'professional', 'clean', 'sharp'], query: 'professional product photography clean' },
+  { icon: '👤', title: 'Human-Centered Lifestyle', style: 'Real people using real products. Diverse, candid, approachable.', tags: ['people', 'lifestyle', 'candid', 'authentic'], query: 'authentic lifestyle photography people' },
+  { icon: '🌅', title: 'Atmospheric & Editorial', style: 'Mood-driven images with strong composition. Evokes feeling over function.', tags: ['editorial', 'mood', 'atmospheric', 'cinematic'], query: 'editorial atmospheric cinematic photography' },
+];
+
+function getPhotoStyles() {
+  const allVibes = [...state.vibes, ...(state.appDesc || '').toLowerCase().split(' ')].map(v => v.toLowerCase());
+
+  // Score each profile
+  let best = null;
+  let bestScore = 0;
+  for (const profile of PHOTO_PROFILES) {
+    const score = profile.triggers.filter(t => allVibes.some(v => v.includes(t) || t.includes(v))).length;
+    if (score > bestScore) { bestScore = score; best = profile; }
+  }
+
+  return best?.styles || DEFAULT_PHOTO_STYLES;
+}
+
+function buildPhotoGuide() {
+  const body = document.getElementById('photoGuideBody');
+  if (!body) return;
+  const styles = getPhotoStyles();
+
+  body.innerHTML = `
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px">
+      Based on your vibe <strong style="color:var(--text)">${state.vibes.slice(0,3).join(', ') || 'your app'}</strong> — here are the photography directions that'll work best.
+    </p>
+    <div class="photo-grid">
+      ${styles.map((s, i) => `
+        <div class="photo-card">
+          <div class="photo-card-icon">${s.icon}</div>
+          <div class="photo-card-title">${s.title}</div>
+          <div class="photo-card-style">${s.style}</div>
+          <div class="photo-tags">${s.tags.map(t => `<span class="photo-tag">${t}</span>`).join('')}</div>
+          <a class="photo-unsplash" href="https://unsplash.com/s/photos/${encodeURIComponent(s.query)}" target="_blank">
+            🔍 Search Unsplash →
+          </a>
+          <button class="photo-sample-btn" onclick="generatePhotoSample(${i}, '${s.title.replace(/'/g, "\\'")}', '${s.query}', this)">
+            ✨ Generate AI Sample
+          </button>
+          <div id="photo-sample-${i}"></div>
+        </div>
+      `).join('')}
+    </div>
+    <p style="font-size:11px; color:var(--text-dim); margin-top:12px">
+      💡 Tip: Use 1 dominant style throughout your app for visual consistency. Mix styles sparingly.
+    </p>
+  `;
+}
+
+async function generatePhotoSample(idx, title, query, btn) {
+  const container = document.getElementById(`photo-sample-${idx}`);
+  if (!container) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+
+  try {
+    const prompt = `A single high-quality ${title.toLowerCase()} photo: ${query}. No text overlays, no frames, no borders — just the photograph itself. Professional quality.`;
+    const res = await fetch('/api/moodboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vibes: [query, ...state.vibes], appName: '', appDesc: prompt }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    const src = `data:${data.mimeType};base64,${data.image}`;
+    container.innerHTML = `
+      <img src="${src}" class="photo-sample-img" style="height:120px">
+      <div style="display:flex;gap:6px;margin-top:4px">
+        <button class="photo-sample-btn" onclick="generatePhotoSample(${idx},'${title.replace(/'/g,"\\'")}','${query}',this)">↺ Retry</button>
+        <a href="${src}" download="sample-${idx}.png" class="photo-sample-btn" style="text-decoration:none">⬇ Save</a>
+      </div>`;
+  } catch (err) {
+    container.innerHTML = `<div style="font-size:11px;color:#ef4444;margin-top:4px">${err.message}</div>`;
+  } finally {
+    btn.style.display = 'none';
+  }
 }
 
 // ============================================================
