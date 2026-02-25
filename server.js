@@ -1,5 +1,5 @@
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const rateLimit = require('express-rate-limit');
 const { GoogleGenAI } = require('@google/genai');
 const path = require('path');
@@ -15,20 +15,22 @@ app.set('trust proxy', 1);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
+app.use(cookieSession({
+  name: 'vibeui_session',
   secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  },
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  secure: process.env.NODE_ENV === 'production',
+  httpOnly: true,
+  sameSite: 'lax',
 }));
 
 // ─── Auth middleware ──────────────────────────────────────
 function requireAuth(req, res, next) {
   if (req.session?.authed) return next();
+  // API routes: return JSON 401 instead of HTML redirect
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ error: 'Not authenticated. Please log in.' });
+  }
   res.redirect('/login');
 }
 
@@ -49,7 +51,8 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/login'));
+  req.session = null;
+  res.redirect('/login');
 });
 
 // ─── Protected static files ───────────────────────────────
