@@ -550,6 +550,26 @@ input[type="file"] { display: none; }
           <!-- Injected by JS -->
         </div>
       </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
+          <label style="margin:0">✨ AI Mood Board <span class="hint" style="display:inline; font-weight:400">(powered by Gemini)</span></label>
+        </div>
+        <p class="hint" style="margin-bottom:12px">Generate a custom mood board from your vibes. Use it as color & style inspiration.</p>
+        <button class="btn btn-ghost" onclick="generateMoodboard()" id="moodboardBtn">
+          <span id="moodboardBtnText">✨ Generate Mood Board</span>
+        </button>
+        <div id="moodboardResult" style="display:none; margin-top:14px">
+          <img id="moodboardImg" style="width:100%; border-radius:var(--radius); border:1px solid var(--border); display:block">
+          <div style="margin-top:8px; display:flex; gap:8px">
+            <button class="btn btn-ghost" style="font-size:12px" onclick="generateMoodboard()">↺ Regenerate</button>
+            <a id="moodboardDownload" class="btn btn-ghost" style="font-size:12px" download="moodboard.png">⬇ Save</a>
+          </div>
+        </div>
+        <div id="moodboardError" style="display:none; color:#ef4444; font-size:12px; margin-top:8px"></div>
+      </div>
     </div>
 
     <div class="nav-actions">
@@ -620,6 +640,20 @@ input[type="file"] { display: none; }
 
     <div class="ds-preview" id="dsPreview">
       <!-- Injected by buildPreview() -->
+    </div>
+
+    <!-- AI UI Preview -->
+    <div class="preview-section" style="margin-top:0">
+      <div class="preview-section-header" style="display:flex; justify-content:space-between; align-items:center">
+        <span>✨ AI UI Preview</span>
+        <button class="btn btn-ghost" style="font-size:12px; padding:5px 12px" onclick="generateUIPreview()" id="previewBtn">
+          <span id="previewBtnText">Generate Preview</span>
+        </button>
+      </div>
+      <div class="preview-section-body" id="aiPreviewBody">
+        <p style="color:var(--text-dim); font-size:13px">Click "Generate Preview" to see an AI-generated mockup of your UI using Gemini.</p>
+        <div id="aiPreviewError" style="display:none; color:#ef4444; font-size:12px; margin-top:8px"></div>
+      </div>
     </div>
 
     <div class="export-area" style="margin-top:20px">
@@ -1264,6 +1298,105 @@ function downloadMd() {
   a.href = URL.createObjectURL(blob);
   a.download = `${(state.appName || 'design-system').toLowerCase().replace(/\s+/g,'-')}-design-system.md`;
   a.click();
+}
+
+// ============================================================
+// AI FEATURES
+// ============================================================
+
+async function generateMoodboard() {
+  const btn = document.getElementById('moodboardBtn');
+  const btnText = document.getElementById('moodboardBtnText');
+  const resultEl = document.getElementById('moodboardResult');
+  const imgEl = document.getElementById('moodboardImg');
+  const dlEl = document.getElementById('moodboardDownload');
+  const errEl = document.getElementById('moodboardError');
+
+  if (state.vibes.length === 0) {
+    errEl.textContent = 'Add vibe keywords first (Stage 1)';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btnText.textContent = '⏳ Generating...';
+  errEl.style.display = 'none';
+  resultEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/moodboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        appName: state.appName,
+        appDesc: state.appDesc,
+        vibes: state.vibes,
+        techStack: state.techStack,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Generation failed');
+
+    const src = `data:${data.mimeType};base64,${data.image}`;
+    imgEl.src = src;
+    dlEl.href = src;
+    resultEl.style.display = 'block';
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = '✨ Generate Mood Board';
+  }
+}
+
+async function generateUIPreview() {
+  const btn = document.getElementById('previewBtn');
+  const btnText = document.getElementById('previewBtnText');
+  const bodyEl = document.getElementById('aiPreviewBody');
+  const errEl = document.getElementById('aiPreviewError');
+  const font = FONT_PAIRS.find(f => f.id === state.fontId);
+
+  btn.disabled = true;
+  btnText.textContent = '⏳ Generating...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        appName: state.appName,
+        appDesc: state.appDesc,
+        audience: state.appAudience,
+        vibes: state.vibes,
+        colors: state.colors,
+        fontHeading: font?.heading,
+        fontBody: font?.body,
+        pages: state.pages,
+        radius: state.radius,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Generation failed');
+
+    const src = `data:${data.mimeType};base64,${data.image}`;
+    bodyEl.innerHTML = `
+      <img src="${src}" style="width:100%; border-radius:8px; display:block; margin-bottom:10px">
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-ghost" style="font-size:12px" onclick="generateUIPreview()">↺ Regenerate</button>
+        <a href="${src}" class="btn btn-ghost" style="font-size:12px" download="${state.appName.toLowerCase().replace(/\s+/g,'-') || 'ui'}-preview.png">⬇ Save</a>
+      </div>
+    `;
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    bodyEl.innerHTML = `<p style="color:var(--text-dim); font-size:13px">Click "Generate Preview" to see an AI-generated mockup of your UI.</p>`;
+    bodyEl.appendChild(errEl);
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = 'Generate Preview';
+  }
 }
 
 // ============================================================
