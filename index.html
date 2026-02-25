@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibeUI — Design System Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0c0c0f;
+  --surface: #14141a;
+  --surface2: #1c1c24;
+  --border: #2a2a35;
+  --border-hover: #3a3a48;
+  --text: #f0f0f5;
+  --text-muted: #7070a0;
+  --text-dim: #4a4a60;
+  --accent: #7c6fff;
+  --accent-dim: rgba(124,111,255,0.12);
+  --accent-hover: #9080ff;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Layout */
+.app { max-width: 760px; margin: 0 auto; padding: 32px 24px 80px; }
+
+/* Header */
+.header { text-align: center; margin-bottom: 48px; }
+.logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.logo span { color: var(--accent); }
+.tagline { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+/* Progress */
+.progress-bar {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 48px; position: relative;
+}
+.progress-bar::before {
+  content: ''; position: absolute; top: 15px; left: 0; right: 0;
+  height: 1px; background: var(--border); z-index: 0;
+}
+.step {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; flex: 1; position: relative; z-index: 1; cursor: pointer;
+}
+.step-dot {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  transition: all 0.2s;
+}
+.step.active .step-dot {
+  background: var(--accent); border-color: var(--accent);
+  color: white; box-shadow: 0 0 16px rgba(124,111,255,0.4);
+}
+.step.done .step-dot {
+  background: var(--surface2); border-color: var(--accent);
+  color: var(--accent);
+}
+.step-label {
+  font-size: 11px; color: var(--text-dim); white-space: nowrap;
+  font-weight: 500;
+}
+.step.active .step-label { color: var(--text-muted); }
+.step.done .step-label { color: var(--text-dim); }
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px; margin-bottom: 16px;
+}
+.card-title {
+  font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px;
+}
+.card-subtitle {
+  font-size: 13px; color: var(--text-muted); margin-bottom: 24px;
+}
+
+/* Form Elements */
+label { font-size: 13px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px; }
+input[type="text"], input[type="url"], textarea, select {
+  width: 100%; padding: 10px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 14px;
+  font-family: inherit; transition: border-color 0.15s;
+  outline: none;
+}
+input[type="text"]:focus, textarea:focus, select:focus, input[type="url"]:focus {
+  border-color: var(--accent);
+}
+textarea { resize: vertical; min-height: 80px; }
+select option { background: var(--surface2); }
+.field { margin-bottom: 18px; }
+
+/* Tags input */
+.tags-wrap {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 10px; min-height: 44px;
+  cursor: text; transition: border-color 0.15s;
+}
+.tags-wrap:focus-within { border-color: var(--accent); }
+.tag {
+  background: var(--accent-dim); color: var(--accent);
+  padding: 3px 10px 3px 10px; border-radius: 99px; font-size: 12px;
+  font-weight: 600; display: flex; align-items: center; gap: 5px;
+}
+.tag-remove { cursor: pointer; opacity: 0.7; font-size: 14px; line-height: 1; }
+.tag-remove:hover { opacity: 1; }
+.tags-input {
+  background: none; border: none; outline: none; color: var(--text);
+  font-size: 13px; font-family: inherit; min-width: 80px; flex: 1;
+}
+
+/* Checkbox grid */
+.check-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.check-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+  font-size: 13px; font-weight: 500;
+}
+.check-item:hover { border-color: var(--border-hover); background: var(--surface2); }
+.check-item.checked { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+.check-box {
+  width: 16px; height: 16px; border: 1.5px solid var(--border);
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s; font-size: 10px;
+}
+.check-item.checked .check-box { background: var(--accent); border-color: var(--accent); color: white; }
+
+/* Image upload */
+.upload-area {
+  border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 24px; text-align: center; cursor: pointer; transition: all 0.15s;
+  background: var(--surface2); position: relative; overflow: hidden;
+}
+.upload-area:hover { border-color: var(--accent); background: var(--accent-dim); }
+.upload-area.has-image { padding: 0; border-style: solid; }
+.upload-area img { width: 100%; max-height: 200px; object-fit: cover; border-radius: calc(var(--radius-sm) - 2px); display: block; }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--text-muted); }
+.upload-text strong { color: var(--text); }
+.upload-remove {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.7); color: white; border: none;
+  border-radius: 4px; padding: 3px 8px; font-size: 11px;
+  cursor: pointer; font-family: inherit;
+}
+input[type="file"] { display: none; }
+
+/* Palette Grid */
+.palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.palette-card {
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; overflow: hidden; transition: all 0.15s;
+}
+.palette-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+.palette-card.selected { border-color: var(--accent); box-shadow: 0 0 12px rgba(124,111,255,0.3); }
+.palette-swatches { display: flex; height: 44px; }
+.swatch { flex: 1; }
+.palette-name { font-size: 11px; font-weight: 600; padding: 7px 8px; color: var(--text-muted); }
+
+/* Font Pairs */
+.font-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.font-card {
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px; cursor: pointer; transition: all 0.15s;
+}
+.font-card:hover { border-color: var(--border-hover); }
+.font-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+.font-heading-preview { font-size: 20px; font-weight: 700; line-height: 1.2; margin-bottom: 3px; }
+.font-body-preview { font-size: 12px; color: var(--text-muted); }
+.font-name { font-size: 10px; color: var(--text-dim); margin-top: 8px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* Icon Options */
+.icon-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.icon-card {
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.15s;
+}
+.icon-card:hover { border-color: var(--border-hover); }
+.icon-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+.icon-card-name { font-size: 12px; font-weight: 600; margin-top: 6px; }
+.icon-card-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+/* Radius selector */
+.radius-options { display: flex; gap: 8px; }
+.radius-opt {
+  flex: 1; padding: 12px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); text-align: center; cursor: pointer;
+  transition: all 0.15s; font-size: 13px;
+}
+.radius-opt:hover { border-color: var(--border-hover); }
+.radius-opt.selected { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+.radius-preview { height: 24px; width: 50px; background: var(--text-dim); margin: 0 auto 8px; }
+
+/* Reference uploads */
+.ref-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ref-item { display: flex; flex-direction: column; gap: 8px; }
+
+/* Buttons */
+.btn {
+  padding: 10px 22px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.15s; border: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary {
+  background: var(--accent); color: white;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-success {
+  background: var(--success); color: white;
+}
+.btn-success:hover { opacity: 0.9; }
+.btn-lg { padding: 13px 28px; font-size: 15px; }
+
+/* Navigation */
+.nav-actions {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 32px;
+}
+
+/* Preview Stage */
+.ds-preview { display: flex; flex-direction: column; gap: 20px; }
+
+.preview-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.preview-section-header {
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  font-size: 12px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px; background: var(--surface2);
+}
+.preview-section-body { padding: 20px; }
+
+/* Color preview */
+.color-swatches-preview { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-swatch-preview {
+  display: flex; flex-direction: column; gap: 6px; align-items: center;
+}
+.swatch-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.swatch-info { text-align: center; }
+.swatch-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+.swatch-hex { font-size: 11px; color: var(--text-dim); font-family: monospace; }
+
+/* Typography preview */
+.typo-sample { margin-bottom: 14px; }
+.typo-sample:last-child { margin-bottom: 0; }
+.typo-sample-text { }
+.typo-meta { font-size: 10px; color: var(--text-dim); margin-top: 2px; font-family: monospace; }
+
+/* Export area */
+.export-area {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.export-header {
+  padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border); background: var(--surface2);
+}
+.export-title { font-size: 15px; font-weight: 700; }
+.export-actions { display: flex; gap: 8px; }
+.export-content {
+  padding: 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px;
+  line-height: 1.7; color: #a0a0c0; max-height: 300px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* Helper */
+.hint { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+.required { color: var(--accent); margin-left: 2px; }
+
+/* Stage visibility */
+.stage { display: none; }
+.stage.active { display: block; }
+
+/* Color customizer */
+.color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.color-field { display: flex; flex-direction: column; gap: 5px; }
+.color-field label { font-size: 11px; }
+.color-input-wrap { display: flex; gap: 6px; align-items: center; }
+.color-picker-thumb {
+  width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+  cursor: pointer; flex-shrink: 0; position: relative; overflow: hidden;
+}
+.color-picker-thumb input[type="color"] {
+  position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px);
+  border: none; padding: 0; cursor: pointer; background: none;
+  opacity: 0; /* show the thumb div color, input is invisible trigger */
+}
+.color-hex-input {
+  flex: 1; padding: 7px 10px; font-size: 12px; font-family: monospace;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); color: var(--text); outline: none;
+}
+.color-hex-input:focus { border-color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .palette-grid { grid-template-columns: repeat(2, 1fr); }
+  .font-grid { grid-template-columns: 1fr; }
+  .check-grid { grid-template-columns: repeat(2, 1fr); }
+  .icon-grid { grid-template-columns: repeat(3, 1fr); }
+  .color-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Copied toast */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--success); color: white; padding: 10px 20px; border-radius: 99px;
+  font-size: 13px; font-weight: 600; transition: transform 0.3s; pointer-events: none;
+  z-index: 999;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo">Vibe<span>UI</span></div>
+    <div class="tagline">Build a design system. Send to Claude Code. Ship.</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar" id="progressBar">
+    <div class="step active" data-step="1" onclick="goToStep(1)">
+      <div class="step-dot">1</div>
+      <div class="step-label">Define</div>
+    </div>
+    <div class="step" data-step="2" onclick="goToStep(2)">
+      <div class="step-dot">2</div>
+      <div class="step-label">Structure</div>
+    </div>
+    <div class="step" data-step="3" onclick="goToStep(3)">
+      <div class="step-dot">3</div>
+      <div class="step-label">References</div>
+    </div>
+    <div class="step" data-step="4" onclick="goToStep(4)">
+      <div class="step-dot">4</div>
+      <div class="step-label">Colors</div>
+    </div>
+    <div class="step" data-step="5" onclick="goToStep(5)">
+      <div class="step-dot">5</div>
+      <div class="step-label">Typography</div>
+    </div>
+    <div class="step" data-step="6" onclick="goToStep(6)">
+      <div class="step-dot">✦</div>
+      <div class="step-label">Preview</div>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 1: DEFINE ===== -->
+  <div class="stage active" id="stage-1">
+    <div class="card">
+      <div class="card-title">What are you building?</div>
+      <div class="card-subtitle">Describe your app so the design system can match your vision.</div>
+
+      <div class="field">
+        <label>App Name <span class="required">*</span></label>
+        <input type="text" id="appName" placeholder="e.g. Orbit, Nova, Taskflow…">
+      </div>
+      <div class="field">
+        <label>One-line Description <span class="required">*</span></label>
+        <input type="text" id="appDesc" placeholder="e.g. A productivity tool for remote teams">
+      </div>
+      <div class="field">
+        <label>Target Audience</label>
+        <input type="text" id="appAudience" placeholder="e.g. Indie hackers, enterprise teams, Gen Z consumers…">
+      </div>
+      <div class="field">
+        <label>Vibe Keywords <span class="required">*</span> <span class="hint" style="display:inline">(type a word, press Enter)</span></label>
+        <div class="tags-wrap" id="vibeTagsWrap" onclick="document.getElementById('vibeTagsInput').focus()">
+          <input class="tags-input" id="vibeTagsInput" placeholder="e.g. minimal, dark, futuristic…" maxlength="20">
+        </div>
+        <div class="hint">Add 3–5 keywords that describe the feeling you want</div>
+      </div>
+      <div class="field">
+        <label>Tech Stack</label>
+        <select id="techStack">
+          <option value="react">React</option>
+          <option value="nextjs">Next.js</option>
+          <option value="vue">Vue 3</option>
+          <option value="nuxt">Nuxt</option>
+          <option value="svelte">Svelte / SvelteKit</option>
+          <option value="html">HTML + Tailwind CSS</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextStep(1)">Structure & Pages →</button>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 2: STRUCTURE ===== -->
+  <div class="stage" id="stage-2">
+    <div class="card">
+      <div class="card-title">Pages & Layout</div>
+      <div class="card-subtitle">Select which pages you need and describe the main layout.</div>
+
+      <div class="field">
+        <label>Pages to build</label>
+        <div class="check-grid" id="pagesGrid">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Layout Notes</label>
+        <textarea id="layoutNotes" placeholder="Describe the general layout. e.g. &quot;Full-width hero, 3-column feature grid, sticky nav&quot;"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Wireframe / Sketch (optional)</label>
+        <div class="upload-area" id="wireframeUpload" onclick="document.getElementById('wireframeFile').click()">
+          <div class="upload-icon">🖼</div>
+          <div class="upload-text"><strong>Click to upload</strong> your Excalidraw export or sketch</div>
+          <div class="hint" style="margin-top:4px">PNG, JPG, or SVG</div>
+          <input type="file" id="wireframeFile" accept="image/*" onchange="handleImageUpload(this, 'wireframeUpload', 'wireframeImg')">
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="prevStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep(2)">Visual References →</button>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 3: REFERENCES ===== -->
+  <div class="stage" id="stage-3">
+    <div class="card">
+      <div class="card-title">Visual References</div>
+      <div class="card-subtitle">Upload screenshots from Dribbble, Mobbin, or any site you like. Label what you love about each.</div>
+
+      <div class="ref-grid">
+        <div class="ref-item" id="ref-item-0">
+          <div class="upload-area" id="ref-upload-0" onclick="document.getElementById('ref-file-0').click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text"><strong>Reference 1</strong></div>
+            <input type="file" id="ref-file-0" accept="image/*" onchange="handleRefUpload(this, 0)">
+          </div>
+          <select id="ref-aspect-0" style="display:none">
+            <option value="">What do you like?</option>
+            <option value="overall">Overall style</option>
+            <option value="colors">Color palette</option>
+            <option value="typography">Typography</option>
+            <option value="navigation">Navigation</option>
+            <option value="hero">Hero section</option>
+            <option value="cards">Cards / Components</option>
+            <option value="spacing">Spacing & layout</option>
+          </select>
+        </div>
+        <div class="ref-item" id="ref-item-1">
+          <div class="upload-area" id="ref-upload-1" onclick="document.getElementById('ref-file-1').click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text"><strong>Reference 2</strong></div>
+            <input type="file" id="ref-file-1" accept="image/*" onchange="handleRefUpload(this, 1)">
+          </div>
+          <select id="ref-aspect-1" style="display:none">
+            <option value="">What do you like?</option>
+            <option value="overall">Overall style</option>
+            <option value="colors">Color palette</option>
+            <option value="typography">Typography</option>
+            <option value="navigation">Navigation</option>
+            <option value="hero">Hero section</option>
+            <option value="cards">Cards / Components</option>
+            <option value="spacing">Spacing & layout</option>
+          </select>
+        </div>
+        <div class="ref-item" id="ref-item-2">
+          <div class="upload-area" id="ref-upload-2" onclick="document.getElementById('ref-file-2').click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text"><strong>Reference 3</strong></div>
+            <input type="file" id="ref-file-2" accept="image/*" onchange="handleRefUpload(this, 2)">
+          </div>
+          <select id="ref-aspect-2" style="display:none">
+            <option value="">What do you like?</option>
+            <option value="overall">Overall style</option>
+            <option value="colors">Color palette</option>
+            <option value="typography">Typography</option>
+            <option value="navigation">Navigation</option>
+            <option value="hero">Hero section</option>
+            <option value="cards">Cards / Components</option>
+            <option value="spacing">Spacing & layout</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="prevStep(3)">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep(3)">Colors & Mood →</button>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 4: COLORS ===== -->
+  <div class="stage" id="stage-4">
+    <div class="card">
+      <div class="card-title">Color System</div>
+      <div class="card-subtitle">Pick a base palette, then customize individual colors.</div>
+
+      <div class="field">
+        <label>Base Palette</label>
+        <div class="palette-grid" id="paletteGrid">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>Customize Colors</label>
+        <div class="color-grid" id="colorCustomizer">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="prevStep(4)">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep(4)">Typography →</button>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 5: TYPOGRAPHY ===== -->
+  <div class="stage" id="stage-5">
+    <div class="card">
+      <div class="card-title">Typography & Icons</div>
+      <div class="card-subtitle">Choose a font pairing that doesn't look like every other AI app.</div>
+
+      <div class="field">
+        <label>Font Pairing</label>
+        <div class="font-grid" id="fontGrid">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>Icon Library <span class="hint" style="display:inline">(avoid Lucide for unique look)</span></label>
+        <div class="icon-grid" id="iconGrid">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>Border Radius Style</label>
+        <div class="radius-options">
+          <div class="radius-opt selected" data-radius="sharp" onclick="selectRadius(this)">
+            <div class="radius-preview" style="border-radius:2px"></div>
+            <div>Sharp</div>
+          </div>
+          <div class="radius-opt" data-radius="medium" onclick="selectRadius(this)">
+            <div class="radius-preview" style="border-radius:8px"></div>
+            <div>Medium</div>
+          </div>
+          <div class="radius-opt" data-radius="rounded" onclick="selectRadius(this)">
+            <div class="radius-preview" style="border-radius:14px"></div>
+            <div>Rounded</div>
+          </div>
+          <div class="radius-opt" data-radius="pill" onclick="selectRadius(this)">
+            <div class="radius-preview" style="border-radius:99px"></div>
+            <div>Pill</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="prevStep(5)">← Back</button>
+      <button class="btn btn-primary btn-lg" onclick="buildPreview()">✦ Generate Design System →</button>
+    </div>
+  </div>
+
+  <!-- ===== STAGE 6: PREVIEW ===== -->
+  <div class="stage" id="stage-6">
+    <div class="card" style="background: linear-gradient(135deg, #14141a, #1a1428); border-color: #3a2a6a;">
+      <div class="card-title">✦ Design System Ready</div>
+      <div class="card-subtitle" id="previewAppName">Ready to send to Claude Code.</div>
+    </div>
+
+    <div class="ds-preview" id="dsPreview">
+      <!-- Injected by buildPreview() -->
+    </div>
+
+    <div class="export-area" style="margin-top:20px">
+      <div class="export-header">
+        <div class="export-title">Claude Code Prompt</div>
+        <div class="export-actions">
+          <button class="btn btn-ghost" onclick="downloadMd()">⬇ Download .md</button>
+          <button class="btn btn-success" onclick="copyPrompt()">⎘ Copy to Clipboard</button>
+        </div>
+      </div>
+      <div class="export-content" id="exportContent">
+        <!-- Injected by buildPreview() -->
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="prevStep(6)">← Edit</button>
+      <button class="btn btn-primary" onclick="copyPrompt()">⎘ Copy & Go Build →</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const PALETTES = [
+  { id: 'minimal-dark', name: 'Minimal Dark', colors: { primary:'#ffffff', secondary:'#a0a0a0', bg:'#0a0a0a', surface:'#141414', textPrimary:'#ffffff', textSecondary:'#888888', accent:'#5865f2', border:'#2a2a2a' } },
+  { id: 'minimal-light', name: 'Minimal Light', colors: { primary:'#000000', secondary:'#555555', bg:'#ffffff', surface:'#f8f8f8', textPrimary:'#111111', textSecondary:'#666666', accent:'#111111', border:'#e5e5e5' } },
+  { id: 'warm-earth', name: 'Warm Earth', colors: { primary:'#e8a050', secondary:'#c17f3a', bg:'#100d08', surface:'#1c1610', textPrimary:'#f5e6d3', textSecondary:'#a89070', accent:'#e8a050', border:'#352a1a' } },
+  { id: 'cool-tech', name: 'Cool Tech', colors: { primary:'#00d4ff', secondary:'#0099cc', bg:'#050d1a', surface:'#0c1a30', textPrimary:'#d0eeff', textSecondary:'#5080a0', accent:'#00d4ff', border:'#152540' } },
+  { id: 'bold-red', name: 'Bold Crimson', colors: { primary:'#ff3355', secondary:'#cc2244', bg:'#0d0507', surface:'#1a0a0e', textPrimary:'#fff0f3', textSecondary:'#a05060', accent:'#ff3355', border:'#3a1020' } },
+  { id: 'sage', name: 'Sage & Natural', colors: { primary:'#4a7c59', secondary:'#7ab080', bg:'#f2ede6', surface:'#ffffff', textPrimary:'#1a2e1f', textSecondary:'#5a7060', accent:'#4a7c59', border:'#d0deca' } },
+  { id: 'purple-lux', name: 'Purple Luxury', colors: { primary:'#a855f7', secondary:'#7c3aed', bg:'#080612', surface:'#110e20', textPrimary:'#f0e8ff', textSecondary:'#7060a0', accent:'#a855f7', border:'#251840' } },
+  { id: 'mono', name: 'Monochrome', colors: { primary:'#ffffff', secondary:'#cccccc', bg:'#111111', surface:'#1e1e1e', textPrimary:'#ffffff', textSecondary:'#888888', accent:'#dddddd', border:'#333333' } },
+];
+
+const COLOR_LABELS = {
+  primary: 'Primary', secondary: 'Secondary', bg: 'Background',
+  surface: 'Surface', textPrimary: 'Text', textSecondary: 'Text Dim',
+  accent: 'Accent', border: 'Border'
+};
+
+const FONT_PAIRS = [
+  { id: 'dm-outfit', name: 'Elegant Modern', heading: 'DM Serif Display', body: 'Outfit', vibe: 'Professional & trustworthy', googleFonts: 'DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700' },
+  { id: 'fraunces-jakarta', name: 'Creative Editorial', heading: 'Fraunces', body: 'Plus Jakarta Sans', vibe: 'Unique & editorial', googleFonts: 'Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=Plus+Jakarta+Sans:wght@400;500;600' },
+  { id: 'cormorant-space', name: 'Tech Sophisticate', heading: 'Cormorant Garamond', body: 'Space Grotesk', vibe: 'Smart & technical', googleFonts: 'Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;600' },
+  { id: 'playfair-geist', name: 'Bold Statement', heading: 'Playfair Display', body: 'Geist', vibe: 'High-end & impactful', googleFonts: 'Playfair+Display:ital,wght@0,700;1,400&family=Geist:wght@400;500;600' },
+  { id: 'lora-sora', name: 'Calm Editorial', heading: 'Lora', body: 'Sora', vibe: 'Calm & approachable', googleFonts: 'Lora:ital,wght@0,400;0,700;1,400&family=Sora:wght@400;500;600' },
+  { id: 'bricolage-nunito', name: 'Playful Friendly', heading: 'Bricolage Grotesque', body: 'Nunito', vibe: 'Fun & welcoming', googleFonts: 'Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Nunito:wght@400;500;600' },
+];
+
+const ICON_LIBS = [
+  { id: 'phosphor', name: 'Phosphor', npm: '@phosphor-icons/react', desc: 'Flexible weights' },
+  { id: 'heroicons', name: 'Heroicons', npm: '@heroicons/react', desc: 'Tailwind team' },
+  { id: 'tabler', name: 'Tabler', npm: '@tabler/icons-react', desc: 'Huge set' },
+  { id: 'radix', name: 'Radix', npm: '@radix-ui/react-icons', desc: 'Ultra minimal' },
+  { id: 'lucide', name: 'Lucide', npm: 'lucide-react', desc: '(default, generic)' },
+];
+
+const PAGES_LIST = [
+  'Landing Page', 'Dashboard', 'Auth (Login/Register)',
+  'Pricing', 'Profile / Settings', 'Blog / Docs',
+  'Onboarding', '404 / Error', 'Other'
+];
+
+const RADIUS_MAP = {
+  sharp: { btn: '4px', card: '6px', input: '4px', modal: '8px' },
+  medium: { btn: '8px', card: '12px', input: '8px', modal: '16px' },
+  rounded: { btn: '10px', card: '16px', input: '10px', modal: '20px' },
+  pill: { btn: '999px', card: '20px', input: '999px', modal: '24px' },
+};
+
+// ============================================================
+// STATE
+// ============================================================
+
+let state = {
+  appName: '', appDesc: '', appAudience: '',
+  vibes: [], techStack: 'react',
+  pages: [], layoutNotes: '',
+  wireframeImg: null,
+  refs: [{ img: null, aspect: '' }, { img: null, aspect: '' }, { img: null, aspect: '' }],
+  paletteId: 'minimal-dark',
+  colors: { ...PALETTES[0].colors },
+  fontId: 'dm-outfit',
+  iconLib: 'phosphor',
+  radius: 'medium',
+};
+
+let generatedPrompt = '';
+
+// ============================================================
+// INIT
+// ============================================================
+
+function init() {
+  buildPagesGrid();
+  buildPaletteGrid();
+  buildFontGrid();
+  buildIconGrid();
+  initTagsInput();
+  initColorCustomizer();
+}
+
+function buildPagesGrid() {
+  const grid = document.getElementById('pagesGrid');
+  grid.innerHTML = PAGES_LIST.map(p => `
+    <div class="check-item" onclick="togglePage(this, '${p}')">
+      <div class="check-box"></div>
+      ${p}
+    </div>
+  `).join('');
+}
+
+function buildPaletteGrid() {
+  const grid = document.getElementById('paletteGrid');
+  grid.innerHTML = PALETTES.map((p, i) => {
+    const c = p.colors;
+    const swatches = [c.bg, c.surface, c.accent, c.primary].map(col =>
+      `<div class="swatch" style="background:${col}"></div>`
+    ).join('');
+    return `
+      <div class="palette-card ${i === 0 ? 'selected' : ''}" onclick="selectPalette('${p.id}', this)">
+        <div class="palette-swatches">${swatches}</div>
+        <div class="palette-name">${p.name}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function buildFontGrid() {
+  const grid = document.getElementById('fontGrid');
+  const firstId = FONT_PAIRS[0].id;
+  // Load all fonts for preview
+  const allFonts = FONT_PAIRS.map(f => f.googleFonts).join('&family=');
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${allFonts}&display=swap`;
+  document.head.appendChild(link);
+
+  grid.innerHTML = FONT_PAIRS.map(f => `
+    <div class="font-card ${f.id === firstId ? 'selected' : ''}" onclick="selectFont('${f.id}', this)">
+      <div class="font-heading-preview" style="font-family:'${f.heading}', serif">${f.heading}</div>
+      <div class="font-body-preview" style="font-family:'${f.body}', sans-serif">Body in ${f.body} — quick setup</div>
+      <div class="font-name">${f.name} · ${f.vibe}</div>
+    </div>
+  `).join('');
+}
+
+function buildIconGrid() {
+  const grid = document.getElementById('iconGrid');
+  grid.innerHTML = ICON_LIBS.map(lib => `
+    <div class="icon-card ${lib.id === 'phosphor' ? 'selected' : ''}" onclick="selectIcon('${lib.id}', this)">
+      <div class="icon-card-name">${lib.name}</div>
+      <div class="icon-card-desc">${lib.desc}</div>
+    </div>
+  `).join('');
+}
+
+function initColorCustomizer() {
+  renderColorCustomizer();
+}
+
+function renderColorCustomizer() {
+  const wrap = document.getElementById('colorCustomizer');
+  wrap.innerHTML = Object.entries(COLOR_LABELS).map(([key, label]) => {
+    const val = state.colors[key] || '#000000';
+    return `
+      <div class="color-field">
+        <label>${label}</label>
+        <div class="color-input-wrap">
+          <div class="color-picker-thumb" style="background:${val}" id="thumb-${key}">
+            <input type="color" value="${val}" oninput="updateColor('${key}', this.value)">
+          </div>
+          <input class="color-hex-input" type="text" value="${val}" maxlength="7"
+            oninput="updateColorHex('${key}', this.value)" id="hex-${key}">
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function initTagsInput() {
+  const input = document.getElementById('vibeTagsInput');
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addVibe(input.value.trim());
+      input.value = '';
+    } else if (e.key === 'Backspace' && input.value === '' && state.vibes.length > 0) {
+      removeVibe(state.vibes.length - 1);
+    }
+  });
+}
+
+// ============================================================
+// INTERACTIONS
+// ============================================================
+
+function togglePage(el, name) {
+  el.classList.toggle('checked');
+  if (el.classList.contains('checked')) {
+    state.pages.push(name);
+  } else {
+    state.pages = state.pages.filter(p => p !== name);
+  }
+}
+
+function addVibe(text) {
+  if (!text || state.vibes.length >= 6) return;
+  text = text.replace(/,/g, '').trim();
+  if (!text) return;
+  state.vibes.push(text);
+  renderVibeTags();
+}
+
+function removeVibe(i) {
+  state.vibes.splice(i, 1);
+  renderVibeTags();
+}
+
+function renderVibeTags() {
+  const wrap = document.getElementById('vibeTagsWrap');
+  const input = document.getElementById('vibeTagsInput');
+  // Remove existing tags
+  wrap.querySelectorAll('.tag').forEach(t => t.remove());
+  state.vibes.forEach((v, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = `${v} <span class="tag-remove" onclick="removeVibe(${i})">×</span>`;
+    wrap.insertBefore(tag, input);
+  });
+}
+
+function selectPalette(id, el) {
+  document.querySelectorAll('.palette-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.paletteId = id;
+  const palette = PALETTES.find(p => p.id === id);
+  state.colors = { ...palette.colors };
+  renderColorCustomizer();
+}
+
+function updateColor(key, val) {
+  state.colors[key] = val;
+  document.getElementById('thumb-' + key).style.background = val;
+  document.getElementById('hex-' + key).value = val;
+}
+
+function updateColorHex(key, val) {
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    state.colors[key] = val;
+    document.getElementById('thumb-' + key).style.background = val;
+  }
+}
+
+function selectFont(id, el) {
+  document.querySelectorAll('.font-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.fontId = id;
+}
+
+function selectIcon(id, el) {
+  document.querySelectorAll('.icon-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.iconLib = id;
+}
+
+function selectRadius(el) {
+  document.querySelectorAll('.radius-opt').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+  state.radius = el.dataset.radius;
+}
+
+function handleImageUpload(input, areaId, imgKey) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state[imgKey] = e.target.result;
+    const area = document.getElementById(areaId);
+    area.classList.add('has-image');
+    area.innerHTML = `
+      <img src="${e.target.result}" alt="Upload">
+      <button class="upload-remove" onclick="removeImage(event,'${areaId}','${imgKey}')">Remove</button>
+    `;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage(e, areaId, imgKey) {
+  e.stopPropagation();
+  state[imgKey] = null;
+  const area = document.getElementById(areaId);
+  area.classList.remove('has-image');
+  if (areaId === 'wireframeUpload') {
+    area.innerHTML = `
+      <div class="upload-icon">🖼</div>
+      <div class="upload-text"><strong>Click to upload</strong> your Excalidraw export or sketch</div>
+      <div class="hint" style="margin-top:4px">PNG, JPG, or SVG</div>
+      <input type="file" id="wireframeFile" accept="image/*" onchange="handleImageUpload(this, 'wireframeUpload', 'wireframeImg')">
+    `;
+  }
+}
+
+function handleRefUpload(input, idx) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state.refs[idx].img = e.target.result;
+    const area = document.getElementById(`ref-upload-${idx}`);
+    area.classList.add('has-image');
+    area.innerHTML = `
+      <img src="${e.target.result}" alt="Reference ${idx+1}">
+      <button class="upload-remove" onclick="removeRef(event,${idx})">Remove</button>
+    `;
+    document.getElementById(`ref-aspect-${idx}`).style.display = 'block';
+    document.getElementById(`ref-aspect-${idx}`).onchange = function() {
+      state.refs[idx].aspect = this.value;
+    };
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeRef(e, idx) {
+  e.stopPropagation();
+  state.refs[idx] = { img: null, aspect: '' };
+  const area = document.getElementById(`ref-upload-${idx}`);
+  area.classList.remove('has-image');
+  area.innerHTML = `
+    <div class="upload-icon">📸</div>
+    <div class="upload-text"><strong>Reference ${idx+1}</strong></div>
+    <input type="file" id="ref-file-${idx}" accept="image/*" onchange="handleRefUpload(this, ${idx})">
+  `;
+  document.getElementById(`ref-aspect-${idx}`).style.display = 'none';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function nextStep(from) {
+  if (from === 1) {
+    state.appName = document.getElementById('appName').value.trim();
+    state.appDesc = document.getElementById('appDesc').value.trim();
+    state.appAudience = document.getElementById('appAudience').value.trim();
+    state.techStack = document.getElementById('techStack').value;
+    if (!state.appName || !state.appDesc) {
+      alert('Please fill in App Name and Description.');
+      return;
+    }
+    if (state.vibes.length === 0) {
+      alert('Add at least one vibe keyword.');
+      return;
+    }
+  }
+  if (from === 2) {
+    state.layoutNotes = document.getElementById('layoutNotes').value.trim();
+  }
+  goToStep(from + 1);
+}
+
+function prevStep(from) { goToStep(from - 1); }
+
+function goToStep(n) {
+  if (n < 1 || n > 6) return;
+  // Check if navigating forward past unvisited steps
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  document.getElementById(`stage-${n}`).classList.add('active');
+
+  document.querySelectorAll('.step').forEach(s => {
+    const stepN = parseInt(s.dataset.step);
+    s.classList.remove('active', 'done');
+    if (stepN < n) s.classList.add('done');
+    if (stepN === n) s.classList.add('active');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// PREVIEW BUILDER
+// ============================================================
+
+function buildPreview() {
+  const font = FONT_PAIRS.find(f => f.id === state.fontId);
+  const icon = ICON_LIBS.find(i => i.id === state.iconLib);
+  const radii = RADIUS_MAP[state.radius];
+  const c = state.colors;
+
+  // Load preview fonts
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${font.googleFonts}&display=swap`;
+  document.head.appendChild(link);
+
+  // Update subtitle
+  document.getElementById('previewAppName').textContent =
+    `${state.appName} — ${state.appDesc}`;
+
+  // Build visual preview
+  const previewEl = document.getElementById('dsPreview');
+  previewEl.innerHTML = `
+    <!-- Colors -->
+    <div class="preview-section">
+      <div class="preview-section-header">🎨 Color System</div>
+      <div class="preview-section-body">
+        <div class="color-swatches-preview">
+          ${Object.entries(c).map(([key, val]) => `
+            <div class="color-swatch-preview">
+              <div class="swatch-circle" style="background:${val}"></div>
+              <div class="swatch-info">
+                <div class="swatch-label">${COLOR_LABELS[key]}</div>
+                <div class="swatch-hex">${val}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="preview-section">
+      <div class="preview-section-header">✍️ Typography — ${font.name}</div>
+      <div class="preview-section-body" style="background:${c.bg}; border-radius: 0 0 12px 12px;">
+        <div class="typo-sample">
+          <div class="typo-sample-text" style="font-family:'${font.heading}',serif; font-size:36px; font-weight:700; color:${c.textPrimary}; line-height:1.15">${state.appName || 'Display Heading'}</div>
+          <div class="typo-meta">${font.heading} / 36px / 700</div>
+        </div>
+        <div class="typo-sample">
+          <div class="typo-sample-text" style="font-family:'${font.heading}',serif; font-size:22px; font-weight:600; color:${c.textPrimary}">${state.appDesc || 'Section Heading H2'}</div>
+          <div class="typo-meta">${font.heading} / 22px / 600</div>
+        </div>
+        <div class="typo-sample">
+          <div class="typo-sample-text" style="font-family:'${font.body}',sans-serif; font-size:15px; color:${c.textSecondary}; max-width:500px">Body text in ${font.body}. Clean, readable, and designed to complement the headings without fighting for attention.</div>
+          <div class="typo-meta">${font.body} / 15px / 400</div>
+        </div>
+        <!-- Button preview -->
+        <div style="margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+          <div style="background:${c.accent}; color:${c.bg}; padding:9px 20px; border-radius:${radii.btn}; font-family:'${font.body}',sans-serif; font-size:14px; font-weight:600; display:inline-block">Primary Button</div>
+          <div style="border:1.5px solid ${c.border}; color:${c.textPrimary}; padding:9px 20px; border-radius:${radii.btn}; font-family:'${font.body}',sans-serif; font-size:14px; font-weight:600; display:inline-block">Secondary</div>
+          <div style="background:${c.surface}; border:1px solid ${c.border}; color:${c.textSecondary}; padding:12px 18px; border-radius:${radii.card}; font-family:'${font.body}',sans-serif; font-size:13px; display:inline-block; max-width:200px">
+            <div style="color:${c.textPrimary}; font-weight:600; font-size:14px; margin-bottom:4px">Card Component</div>
+            <div>Sample card with border and surface color.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Icons & Spacing -->
+    <div class="preview-section">
+      <div class="preview-section-header">🔷 Icons & Spacing</div>
+      <div class="preview-section-body">
+        <div style="display:flex; gap:32px; flex-wrap:wrap">
+          <div>
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px">Icon Library</div>
+            <div style="font-size:15px; font-weight:600">${icon.name}</div>
+            <div style="font-size:12px; color:var(--text-muted)">npm i ${icon.npm}</div>
+          </div>
+          <div>
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px">Border Radius</div>
+            <div style="font-size:13px; display:flex; flex-direction:column; gap:3px">
+              ${Object.entries(radii).map(([k,v]) => `<span style="color:var(--text-dim)"><strong style="color:var(--text)">${k}:</strong> ${v}</span>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px">Spacing Scale (4px base)</div>
+            <div style="display:flex; align-items:flex-end; gap:4px">
+              ${[1,2,3,4,6,8,10,12,16,20,24].map(n => `
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+                  <div style="width:${Math.min(n*2,40)}px; height:${Math.min(n*2,40)}px; background:var(--accent-dim); border:1px solid var(--accent); border-radius:2px"></div>
+                  <div style="font-size:9px; color:var(--text-dim)">${n*4}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Generate the Claude Code prompt
+  generatedPrompt = generatePrompt(font, icon, radii, c);
+  document.getElementById('exportContent').textContent = generatedPrompt;
+
+  goToStep(6);
+}
+
+function generatePrompt(font, icon, radii, c) {
+  const pages = state.pages.length > 0 ? state.pages.join(', ') : 'Main page';
+  const refs = state.refs
+    .filter(r => r.img && r.aspect)
+    .map((r, i) => `- Reference ${i+1}: Focus on the ${r.aspect || 'overall style'}`)
+    .join('\n');
+  const techMap = {
+    react: 'React', nextjs: 'Next.js', vue: 'Vue 3', nuxt: 'Nuxt',
+    svelte: 'SvelteKit', html: 'HTML + Tailwind CSS', other: 'your preferred stack'
+  };
+
+  return `# Design System — ${state.appName}
+
+> ${state.appDesc}
+> **Audience:** ${state.appAudience || 'General users'}
+> **Vibe:** ${state.vibes.join(', ')}
+> **Stack:** ${techMap[state.techStack] || state.techStack}
+
+---
+
+## 🎨 Color System
+
+Define these as CSS custom properties (or Tailwind config tokens):
+
+\`\`\`css
+:root {
+  --color-primary:        ${c.primary};   /* Main brand */
+  --color-secondary:      ${c.secondary}; /* Supporting */
+  --color-bg:             ${c.bg};        /* Page background */
+  --color-surface:        ${c.surface};   /* Cards, panels */
+  --color-text:           ${c.textPrimary};  /* Main text */
+  --color-text-muted:     ${c.textSecondary}; /* Subtitles, hints */
+  --color-accent:         ${c.accent};    /* CTAs, highlights */
+  --color-border:         ${c.border};    /* Dividers, outlines */
+}
+\`\`\`
+
+---
+
+## ✍️ Typography
+
+**Google Fonts import:**
+\`\`\`css
+@import url('https://fonts.googleapis.com/css2?family=${font.googleFonts}&display=swap');
+\`\`\`
+
+| Role       | Font                  | Size  | Weight |
+|------------|-----------------------|-------|--------|
+| Display    | ${font.heading}  | 48px  | 700    |
+| H1         | ${font.heading}  | 36px  | 700    |
+| H2         | ${font.heading}  | 28px  | 600    |
+| H3         | ${font.heading}  | 22px  | 600    |
+| Body       | ${font.body}     | 16px  | 400    |
+| Body SM    | ${font.body}     | 14px  | 400    |
+| Caption    | ${font.body}     | 12px  | 400    |
+| Label      | ${font.body}     | 12px  | 600    |
+
+---
+
+## 📐 Spacing Scale
+
+Base unit: 4px. Use only these values:
+
+\`4px  8px  12px  16px  20px  24px  32px  40px  48px  64px  80px  96px  128px\`
+
+---
+
+## 🧩 Border Radius
+
+| Element | Radius |
+|---------|--------|
+| Button  | ${radii.btn} |
+| Card    | ${radii.card} |
+| Input   | ${radii.input} |
+| Modal   | ${radii.modal} |
+| Avatar  | 9999px |
+
+---
+
+## 🔷 Icons
+
+**Library:** ${icon.name}
+**Install:** \`npm install ${icon.npm}\`
+**Default size:** 20px (inline) / 24px (standalone)
+**Weight:** regular (or fill for emphasis)
+
+---
+
+## 📄 Pages to Build
+
+${pages}
+
+${state.layoutNotes ? `**Layout Notes:**\n${state.layoutNotes}` : ''}
+
+---
+
+## 🖼 Visual References
+
+${refs || '- Style should feel: ' + state.vibes.join(', ')}
+${state.wireframeImg ? '- Wireframe provided (see attached image)' : ''}
+
+---
+
+## ⚠️ Design Rules — Enforce Strictly
+
+1. ❌ NO generic blue-purple AI gradients
+2. ❌ NO Inter font — use **${font.body}** for body text
+3. ❌ NO Lucide icons — use **${icon.name}** instead
+4. ❌ NO box-shadow: 0 4px 6px rgba(0,0,0,0.1) on every card (overused pattern)
+5. ✅ ALL spacing must use the scale above — no arbitrary values
+6. ✅ ALL colors must reference the CSS variables above
+7. ✅ Typography hierarchy must be consistent across all pages
+8. ✅ Every interactive element needs a clear hover/focus/active state
+9. ✅ Mobile-first — all layouts should work at 375px width
+
+---
+
+## 🚀 Build Instructions
+
+Start in this order:
+
+1. Set up CSS variables from the color system
+2. Configure Google Fonts import
+3. Create base tokens file (colors, spacing, radius, typography)
+4. Build atomic components: Button (primary/secondary/ghost), Input, Badge, Avatar
+5. Build layout components: Navbar, Footer, Container, Section
+6. Build page-level components: Card, Modal, Toast, Dropdown
+7. Build each page in order: ${pages}
+
+All components should use CSS variables for theming. No hardcoded hex values in component files.
+`;
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+
+function copyPrompt() {
+  navigator.clipboard.writeText(generatedPrompt).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  });
+}
+
+function downloadMd() {
+  const blob = new Blob([generatedPrompt], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${(state.appName || 'design-system').toLowerCase().replace(/\s+/g,'-')}-design-system.md`;
+  a.click();
+}
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
+</body>
+</html>
